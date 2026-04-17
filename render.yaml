@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: replynow-ai
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node server.js"
