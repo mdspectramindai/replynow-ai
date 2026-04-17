@@ -12,20 +12,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Fix dirname
+// Fix path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static folder
-const publicPath = path.join(__dirname, "public");
-app.use(express.static(publicPath));
-
-// Force root to index.html
+// Serve root file
 app.get("/", (req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// Debug route (VERY IMPORTANT)
+// Test route
 app.get("/test", (req, res) => {
   res.send("Server is working");
 });
