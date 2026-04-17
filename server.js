@@ -9,19 +9,25 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 
-// ✅ Fix for __dirname in ES module
+// Fix dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+// Serve static folder
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
 
-// ✅ FIX: serve index.html on root "/"
+// Force root to index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(publicPath, "index.html"));
+});
+
+// Debug route (VERY IMPORTANT)
+app.get("/test", (req, res) => {
+  res.send("Server is working");
 });
 
 const openai = new OpenAI({
@@ -42,20 +48,19 @@ app.post("/reply", async (req, res) => {
   usage[userId]++;
 
   try {
-    const prompt = `
-User message: "${message}"
-
-Generate 3 replies:
-1. Professional
-2. Friendly
-3. Smart/Persuasive
-
-Short and clear.
-`;
-
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
-      messages: [{ role: "user", content: prompt }],
+      messages: [
+        {
+          role: "user",
+          content: `Message: "${message}"
+
+Give 3 replies:
+1. Professional
+2. Friendly
+3. Persuasive`,
+        },
+      ],
     });
 
     res.json({
@@ -64,12 +69,12 @@ Short and clear.
 
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error generating reply");
+    res.status(500).send("Error");
   }
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log("Running on port " + PORT);
 });
