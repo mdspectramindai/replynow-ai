@@ -5,23 +5,42 @@
 </head>
 <body>
 
-<h1>Reply Perfectly. Instantly.</h1>
+<h1>ReplyNow AI</h1>
 
-<p>Paste any message → get smart replies</p>
+<p>Paste message and get instant replies</p>
 
-<textarea id="input"></textarea>
+<textarea id="input" style="width:100%;height:100px;"></textarea>
+
+<br><br>
 
 <button onclick="generateReply()">Generate Reply</button>
 
 <pre id="output"></pre>
 
-<br><br>
+<script>
+let userId = localStorage.getItem("userId");
 
-<a href="YOUR_STRIPE_LINK" target="_blank">
-  <button>Upgrade to Pro ($5/month)</button>
-</a>
+if (!userId) {
+  userId = "user_" + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem("userId", userId);
+}
 
-<script src="script.js"></script>
+async function generateReply() {
+  const message = document.getElementById("input").value;
+
+  const res = await fetch("/reply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message, userId }),
+  });
+
+  const data = await res.json();
+
+  document.getElementById("output").innerText = data.reply;
+}
+</script>
 
 </body>
 </html>
